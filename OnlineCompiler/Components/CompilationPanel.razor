@@ -1,0 +1,17 @@
+<div>
+    <h4>Rezultat Compilare</h4>
+    <ul>
+        @if (Errors != null)
+        {
+            @foreach (var err in Errors)
+            {
+                <li style="color:red"">@err</li>
+            }
+        }
+    </ul>
+</div>
+
+@code{
+    [Parameter]
+    public List<string>? Errors {get; set;}
+}

@@ -1,0 +1,10 @@
+<textarea @bind="Code" rows = "10" cols = "60"></textarea>
+<button @onclick="OnCompile"></button>
+
+@code{
+    [Parameter]
+    public EventCallback<string> Compile {get; set;}
+    string Code {get; set;} = string.Empty;
+
+    async Task OnCompile() => await Compile.InvokeAsync(Code);
+}

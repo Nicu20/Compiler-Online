@@ -1,0 +1,17 @@
+@page "/compiler"
+@using OnlineCompiler.Components
+
+<CodeEditor Compile="OnCompile"/>
+<CompilationPanel Errors="@compileErrors"/>
+<ResultsPanel Output="@executionOutput"/>
+
+@code{
+    List<string>? compileErrors = new();
+    string executionOutput = string.Empty;
+
+    void OnCompile(string code)
+    {
+        compileErrors = new List<string>{"Nu s-a putut compila codul."};
+        executionOutput = "Executia nu a avut loc.";
+    }
+}
