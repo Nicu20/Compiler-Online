@@ -1,5 +1,7 @@
 @page "/compiler"
 @using OnlineCompiler.Components
+@using OnlineCompiler.Services
+@inject CompilerService CompilerService
 
 <CodeEditor Compile="OnCompile"/>
 <CompilationPanel Errors="@compileErrors"/>
@@ -8,10 +10,33 @@
 @code{
     List<string>? compileErrors = new();
     string executionOutput = string.Empty;
-
-    void OnCompile(string code)
+    bool isCompiling = false;
+    async Task OnCompile(string code)
     {
-        compileErrors = new List<string>{"Nu s-a putut compila codul."};
-        executionOutput = "Executia nu a avut loc.";
+        isCompiling = true;
+        compileErrors?.Clear();
+        executionOutput = "";
+
+        try
+        {
+            var compileResult = await CompilerService.CompileAsync(code);
+            if(compileResult.Success)
+            {
+                var execResult = await CompilerService.ExecuteAsync(compileResult.Assembly!);
+                executionOutput = execResult.Success ? execResult.Output : $"Error: {execResult.Error}";
+            }
+            else
+            {
+                compileErrors = compileResult.Errors;
+            }
+        }
+        catch(Exception ex)
+        {
+            compileErrors?.Add($"Exception: {ex.Message}");
+        }
+        finally
+        {
+            isCompiling = false;
+        }
     }
 }

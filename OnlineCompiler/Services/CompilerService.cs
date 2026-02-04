@@ -125,33 +125,35 @@ public class CompilerService
     {
         var references = new List<MetadataReference>();
 
-        var runtimeLocation = Path.GetDirectoryName(typeof(object).Assembly.Location);
-        var runtimePath = Path.Combine(runtimeLocation!, "*.dll");
-
-        foreach(var dllPath in Directory.GetFiles(runtimeLocation!, "*.dll"))
+        var tpa = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
+        if(!string.IsNullOrEmpty(tpa))
         {
-            if(ShouldIncludeReference(dllPath))
+            var paths = tpa.Split(Path.PathSeparator);
+            foreach(var path in paths)
             {
-                references.Add(MetadataReference.CreateFromFile(dllPath));
+                if(path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) && File.Exists(path))
+                {
+                    try
+                    {
+                    references.Add(MetadataReference.CreateFromFile(path));
+                    }
+                    catch{}
+                }
             }
         }
 
         return references;
     }
 
+    /*
     private bool ShouldIncludeReference(string path)
     {
-        var fileName = Path.GetFileName(path);
+        var fileName = Path.GetFileName(path).ToLower();
 
-        var coreReferences = new[]
-        {
-           "System.Runtime.dll",
-           "System.Console.dll",
-           "netstandard.dll",
-           "System.Core.dll",
-           "mscorlib.dll"
-        };
+        var excludeList = new[] {"testhost", "vstest"};
+        if(excludeList.Any(e => fileName.Contains(e))) return false;
 
-        return coreReferences.Any(r => r.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+        return true;
     }
+    */
 }
